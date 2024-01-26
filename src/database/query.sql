@@ -10,3 +10,11 @@ CREATE TABLE productos(
 );
 
 SELECT * FROM productos;
+
+
+
+CREATE TABLE usuarios(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    correo varchar(100) NOT NULL,
+    password varchar(200)
+);

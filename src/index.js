@@ -4,6 +4,7 @@ import { engine } from 'express-handlebars';
 import {join, dirname} from 'path'
 import {fileURLToPath} from 'url'
 import productosRoutes from './routes/productos.routes.js'
+import loginRoutes from './routes/login.routes.js'
 
 //Initialization
 const app = express();
@@ -31,6 +32,7 @@ app.get('/', (req, res)=>{
 })
 
 app.use(productosRoutes);
+app.use(loginRoutes);
 
 //Public files
 app.use(express.static(join(__dirname, 'public')));
