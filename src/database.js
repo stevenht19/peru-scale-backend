@@ -1,4 +1,4 @@
-import {createPool} from 'mysql2/promise';
+import { createPool } from 'mysql2/promise'
 
 const pool = createPool({
     host: 'localhost',
@@ -8,4 +8,4 @@ const pool = createPool({
     database: 'Peruscale'
 });
 
-export default pool;
+export default pool
