@@ -4,6 +4,8 @@ import { engine } from 'express-handlebars';
 import {join, dirname} from 'path'
 import {fileURLToPath} from 'url'
 import productosRoutes from './routes/productos.routes.js'
+import loginRoutes from './routes/login.routes.js'
+import cors from 'cors'
 
 //Initialization
 const app = express();
@@ -22,9 +24,11 @@ app.engine('.hbs', engine({
 app.set('view engine', '.hbs');*/
 
 //Middlewares
+app.use(cors())
 app.use(morgan('dev'));
-app.use(express.urlencoded({ extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 
 //Routes
 /*
@@ -32,7 +36,8 @@ app.get('/', (req, res)=>{
     res.render('index')
 })*/
 
-//app.use(productosRoutes);
+app.use(productosRoutes);
+app.use(loginRoutes);
 
 //Public files
 //app.use(express.static(join(__dirname, 'public')));

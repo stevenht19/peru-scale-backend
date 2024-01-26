@@ -4,8 +4,8 @@ const pool = createPool({
     host: 'localhost',
     port: '3306',
     user: 'root',
-    password: 'admin',
-    database: 'Peruscale'
+    password: 'root',
+    database: 'peruscale'
 });
 
 export default pool
