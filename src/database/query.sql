@@ -13,7 +13,7 @@ SELECT * FROM productos;
 
 CREATE TABLE usuarios(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    correo varchar(100) NOT NULL,
+    correo varchar(100) UNIQUE KEY NOT NULL,
     password varchar(200),
     nombres varchar(200),
     apellidos varchar(200),
