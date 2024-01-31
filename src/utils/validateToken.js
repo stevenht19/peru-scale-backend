@@ -16,7 +16,7 @@ export async function verifyToken(req, res, next) {
     console.log(payload)
     
     if (!payload) {
-      res.status(403).json({
+      res.status(200).json({
         message: 'Error'
       })
     }
@@ -26,7 +26,7 @@ export async function verifyToken(req, res, next) {
     return next()
 
   } catch (error) {
-    res.status(403).json({
+    res.status(200).json({
       message: 'Error'
     })
   }

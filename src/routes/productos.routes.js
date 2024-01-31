@@ -3,12 +3,6 @@ import pool from '../database.js'
 
 const router = Router();
 
-
-
-
-
-
-
 router.get('/add', (req,res)=>{
     res.render('productos/add');
 });
@@ -23,7 +17,7 @@ router.post('/add', async(req, res)=>{
         res.redirect('/list');
     }
     catch(err){
-        res.status(500).json({message:err.message});
+        res.status(500).json({ error: true, message:err.message});
     }
 });
 
@@ -33,7 +27,7 @@ router.get('/list', async(req, res)=>{
         res.render('productos/list', {productos: result});
     }
     catch(err){
-        res.status(500).json({message:err.message});
+        res.status(500).json({ error: true, message:err.message});
     }
 });
 
@@ -45,7 +39,7 @@ router.get('/edit/:id', async(req, res)=>{
         res.render('productos/edit', {producto: productoEdit});
     }
     catch(err){
-        res.status(500).json({message:err.message});
+        res.status(500).json({error: true, message:err.message});
     }
 })
 
@@ -58,7 +52,7 @@ router.post('/edit/:id', async(req, res)=>{
         res.redirect('/list');
     }
     catch(err){
-        res.status(500).json({message:err.message});
+        res.status(500).json({error: true, message:err.message});
     }
 })
 
@@ -69,7 +63,7 @@ router.get('/delete/:id', async(req, res)=>{
         res.redirect('/list');
     }
     catch(err){
-        res.status(500).json({message:err.message});
+        res.status(500).json({error: true, message:err.message});
     }
 });
 export default router;
