@@ -23,10 +23,9 @@ CREATE TABLE usuarios(
 )
 
 
-CREATE TABLE products(
+CREATE TABLE productos(
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(45) NOT NULL,
-    categoria VARCHAR(45) ,
     precio INT,
     descripcion VARCHAR(200) NOT NULL,
     stock INT,
