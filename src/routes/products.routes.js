@@ -10,7 +10,7 @@ router.get('/productos', async (req, res) => {
         const result = await pool.query('SELECT * FROM productos');
         res.json(result[0]); // Result es un array, y los datos estarán en result[0]
     } catch (error) {
-        console.error('Error al obtener productos:', error);
+        console.error('Error al obtener los productos:', error);
         res.status(500).send('Error interno del servidor');
     }
 });
