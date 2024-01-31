@@ -5,6 +5,7 @@ import {join, dirname} from 'path'
 import {fileURLToPath} from 'url'
 import productosRoutes from './routes/productos.routes.js'
 import loginRoutes from './routes/login.routes.js'
+import productsRoutes from './routes/products.routes.js'
 import cors from 'cors'
 
 //Initialization
@@ -37,7 +38,9 @@ app.get('/', (req, res)=>{
 })*/
 
 app.use(productosRoutes);
+
 app.use(loginRoutes);
+app.use(productsRoutes);
 
 //Public files
 //app.use(express.static(join(__dirname, 'public')));
