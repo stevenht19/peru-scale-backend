@@ -12,7 +12,7 @@ router.get('/categorias/:idcategoria/productos', async (req, res) => {
         const query = 'SELECT * FROM productos WHERE idcategoria = ?';
         const result = await pool.query(query, [idcategoria]);
 
-        res.json(result);
+        res.json(result[0]);
     } catch (error) {
         console.error('Error al obtener productos por categoría:', error);
         res.status(500).send('Error interno del servidor');
