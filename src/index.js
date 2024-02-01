@@ -42,7 +42,7 @@ app.get('/', (req, res)=>{
 app.use(productosRoutes);
 
 app.use(loginRoutes);
-app.use(productsRoutes);
+app.use('/productos', productsRoutes);
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
 
