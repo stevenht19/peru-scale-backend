@@ -3,76 +3,107 @@ import jwt from 'jsonwebtoken'
 import pool from '../database.js'
 import { verifyToken } from '../utils/validateToken.js';
 import { sendEmail } from '../utils/nodemailer.js';
+import { verifyRegister } from '../middlewares/verify-register.js';
 
 const router = Router();
 
+router.get('/usuarios', async (req, res) => {
+  try {
+
+    const query = `SELECT 
+    u.id, 
+    u.correo, 
+    u.password,
+    u.nombres, 
+    u.apellidos, 
+    u.direccion, 
+    u.telefono, 
+    u.dni, 
+    u.fecha_registro,
+    u.usuario_registro,
+    u.fecha_actualizacion,
+    u.usuario_actualizacion,
+    r.nombre as nombre_rol,
+    u.estado
+  FROM usuarios u
+  JOIN roles r ON u.id_rol = r.id_rol;`
+
+    const [usuarios] = await pool.query(query);
+
+    return res.status(200).json({
+      data: usuarios
+    })
+  } catch (err) {
+    return res.status(500).json({ message: err })
+  }
+})
 
 router.get('/login', (req, res) => {
   //res.render('login/login');
 });
 
 router.get('/account', verifyToken, async (req, res) => {
+  const query = `SELECT 
+    u.id, 
+    u.correo, 
+    u.password,
+    u.nombres, 
+    u.apellidos, 
+    u.direccion, 
+    u.telefono, 
+    u.dni, 
+    u.fecha_registro,
+    u.usuario_registro,
+    u.fecha_actualizacion,
+    u.usuario_actualizacion,
+    r.nombre as nombre_rol,
+    u.estado
+    FROM usuarios u
+    JOIN roles r ON u.id_rol = r.id_rol
+    WHERE u.id = ?;`
+
   try {
-    const [user] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [req.user_id]);
+    const [user] = await pool.query(query, [req.user_id]);
     return res.json({ user: user[0] })
   } catch (err) {
     return res.json({ message: err })
   }
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', verifyRegister, async (req, res) => {
   const {
     correo,
     password,
-    nombres,
-    apellidos,
-    direccion,
-    telefono,
-    dni
   } = req.body;
 
   try {
     // Verificar si el correo o el teléfono o dni ya existen en la base de datos wasaaaa :V
     const [existingEmail] = await pool.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
-    const [existingPhone] = await pool.query('SELECT * FROM usuarios WHERE telefono = ?', [telefono]);
-    const [existingDNI] = await pool.query('SELECT * FROM usuarios WHERE dni = ?', [dni]);
 
-    //El correo debe incluir el caracter arroba
     if (!correo.includes('@')) {
       return res.status(400).json({ error: true, message: 'El correo debe contener el símbolo "@".' });
     }
-
-    // Validar que el teléfono tenga exactamente 9 dígitos y sea numérico
-    if (!/^\d{9}$/.test(telefono)) {
-      return res.status(400).json({ error: true, message: 'El teléfono debe contener exactamente 9 dígitos y ser numérico.' });
-    }
-
-    // Validar que el DNI tenga exactamente 8 dígitos y sea numérico
-    if (!/^\d{8}$/.test(dni)) {
-      return res.status(400).json({ error: true, message: 'El DNI debe contener exactamente 8 dígitos y ser numérico.' });
-    }
-
 
     if (existingEmail.length > 0) {
       return res.status(400).json({ error: true, message: 'El correo ya está registrado.' });
     }
 
-    if (existingPhone.length > 0) {
-      return res.status(400).json({ error: true, message: 'El teléfono ya está registrado.' });
-    }
+    const token = jwt.sign({ correo, password }, 'TOKEN_KEY', {
+      expiresIn: 3600
+    })
 
-    if (existingDNI.length > 0) {
-      return res.status(400).json({ error: true, message: 'El DNI ya está registrado.' });
-    }
+    sendEmail(correo, `
+      <h2>Verifica tu cuenta de PeruScale</h2>
+      Gracias por registrarte! Solo cuentas con una hora para verificar tu cuenta  <br /> Para verificar tu cuenta haz click en este link: <br />
+      <a href=http://localhost:5173/verify?token=${token}>
+        Verificar Cuenta
+      </a>
+    `, 'Confirmación de Cuenta')
 
-    // Si no hay errores, proceder con la inserción
-    const user = await pool.query('INSERT INTO usuarios (correo, password, nombres, apellidos, direccion, telefono, dni) VALUES (?, ?, ?, ?, ?, ?, ?)', [correo, password, nombres, apellidos, direccion, telefono, dni]);
-
-    const token = jwt.sign({ id: user[0].insertId }, 'TOKEN_KEY', {
-      expiresIn: 2000
-    });
-
-    res.status(201).json({ user: user[0].insertId, token });
+    return res.status(200).json({
+      token,
+      message: 'Correo enviado'
+    })
 
   } catch (err) {
     // Manejar errores especificos, por ejemplo, duplicidad de clave única
@@ -87,7 +118,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Otros errores
-    res.status(500).json({ error: true, message: 'Error interno del servidor.' });
+    res.status(500).json({ error: true, message: err.message });
   }
 });
 
@@ -128,6 +159,56 @@ router.post('/recover', verifyToken, async (req, res) => {
     })
   }
 
+})
+
+router.post('/verify-account', verifyToken, async (req, res) => {
+  try {
+    const { correo, password } = req.user
+    const { nombres, apellidos, dni, direccion, telefono } = req.body
+
+    if (!correo.includes('@')) {
+      return res.status(400).json({ error: true, message: 'El correo debe contener el símbolo "@".' });
+    }
+
+    // Validar que el teléfono tenga exactamente 9 dígitos y sea numérico
+    if (!/^\d{9}$/.test(telefono)) {
+      return res.status(400).json({ error: true, message: 'El teléfono debe contener exactamente 9 dígitos y ser numérico.' });
+    }
+
+    // Validar que el DNI tenga exactamente 8 dígitos y sea numérico
+    if (!/^\d{8}$/.test(dni)) {
+      return res.status(400).json({ error: true, message: 'El DNI debe contener exactamente 8 dígitos y ser numérico.' });
+    }
+
+    const [existingEmail] = await pool.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+    const [existingPhone] = await pool.query('SELECT * FROM usuarios WHERE telefono = ?', [telefono]);
+    const [existingDNI] = await pool.query('SELECT * FROM usuarios WHERE dni = ?', [dni]);
+
+    if (existingEmail.length > 0) {
+      return res.status(400).json({ error: true, message: 'El correo ya está registrado' });
+    }
+
+    if (existingPhone.length > 0) {
+      return res.status(400).json({ error: true, message: 'El teléfono ya está registrado.' });
+    }
+
+    if (existingDNI.length > 0) {
+      return res.status(400).json({ error: true, message: 'El DNI ya está registrado.' });
+    }
+
+    const [user] = await pool.query('INSERT INTO usuarios (correo, password, nombres, apellidos, direccion, telefono, dni) VALUES (?, ?, ?, ?, ?, ?, ?)', [correo, password, nombres, apellidos, direccion, telefono, dni]);
+
+    const token = jwt.sign({ id: user.insertId }, 'TOKEN_KEY', {
+      expiresIn: 2000
+    })
+
+    return res.status(200).json({ message: 'Registro Exitoso', token });
+  } catch (err) {
+    return res.status(500).json({
+      error: true,
+      message: err.message
+    })
+  }
 })
 
 router.post('/recover-password', async (req, res) => {

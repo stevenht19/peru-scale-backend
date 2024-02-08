@@ -9,12 +9,12 @@ router.get('/add', (req,res)=>{
 
 router.post('/add', async(req, res)=>{
     try{
-        const {nombre, descripcion, precio} = req.body;
+        const {nombre, descripcion, precio, beneficio } = req.body;
         const newProducto = {
-            nombre, descripcion, precio
+            nombre, descripcion, precio, beneficio, stock, categoria, idcategoria, imagen
         }
         await pool.query('INSERT INTO productos SET ?', [newProducto]);
-        res.redirect('/list');
+        //res.redirect('/list');
     }
     catch(err){
         res.status(500).json({ error: true, message:err.message});

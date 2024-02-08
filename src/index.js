@@ -8,6 +8,7 @@ import loginRoutes from './routes/login.routes.js'
 import productsRoutes from './routes/products.routes.js'
 import categoriesRoutes from './routes/categories.routes.js'
 import products_categoriesRoutes from './routes/products_categories.routes.js'
+import cotizacionRoute from './routes/cotizacion.route.js'
 import users_managementRoutes  from './routes/users_management.routes.js'
  
 import cors from 'cors'
@@ -45,9 +46,10 @@ app.use(productosRoutes);
 
 app.use(loginRoutes);
 app.use('/productos', productsRoutes);
+app.use('/cotizaciones', cotizacionRoute)
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
-app.use(users_managementRoutes);
+app.use('/admin', users_managementRoutes);
 
 
 //Public files
