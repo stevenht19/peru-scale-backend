@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import e, { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import pool from '../database.js'
 import { verifyToken } from '../utils/validateToken.js';
@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
     apellidos,
     direccion,
     telefono,
-    dni
+    dni,
   } = req.body;
 
   try {
@@ -85,7 +85,7 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ error: true, message: 'El DNI ya está registrado.' });
       }
     }
-
+    console.error(err);
     // Otros errores
     res.status(500).json({ error: true, message: 'Error interno del servidor.' });
   }
@@ -110,6 +110,7 @@ router.post('/login', async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({ error: true, message: err.message });
+    console.log(err)
   }
 });
 
@@ -174,6 +175,9 @@ router.post('/recover-password', async (req, res) => {
     })
   }
 })
+
+
+
 
 
 export default router;

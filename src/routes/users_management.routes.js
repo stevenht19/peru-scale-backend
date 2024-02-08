@@ -3,7 +3,7 @@ import pool from '../database.js'
 
 const router = Router();
 
-//Ruta para obtener los usuario 
+//Ruta para obtener los usuario ----------------------
 
 
 router.get('/admin_usuarios', async (req, res) => {
@@ -28,7 +28,7 @@ router.get('/admin_usuarios', async (req, res) => {
 
 
 
-// Ruta para actualizar un usuario
+// Ruta para actualizar un usuario------------------------
 router.put('/admin_usuarios/:id', async (req, res) => {
     const { id } = req.params;
     const { correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado } = req.body;
@@ -89,5 +89,61 @@ router.put('/admin_usuarios/:id', async (req, res) => {
 
 
 
+// Ruta para agregar un nuevo usuario-------------------------
+router.post('/admin_usuarios', async (req, res) => {
+    const { correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado } = req.body;
+
+    try {
+        // Verificar si el correo electrónico existe en la base de datos
+        const [existingEmail] = await pool.query(`
+            SELECT id FROM usuarios WHERE correo = ?
+        `, [correo]);
+
+        // Si el correo electrónico ya está en uso, devuelve un mensaje de error
+        if (existingEmail.length > 0) {
+            return res.status(400).json({ message: 'El correo electrónico ya está en uso por otro usuario' });
+        }
+
+        // Verificar si el DNI tiene exactamente 8 dígitos
+        if (dni.toString().length !== 8 || !(/^\d{8}$/.test(dni))) {
+            return res.status(400).json({ message: 'El DNI debe tener exactamente 8 dígitos numéricos' });
+        }
+
+        // Verificar si el DNI existe en la base de datos
+        const [existingDNI] = await pool.query(`
+            SELECT id FROM usuarios WHERE dni = ?
+        `, [dni]);
+
+        // Si el DNI ya está en uso, devuelve un mensaje de error
+        if (existingDNI.length > 0) {
+            return res.status(400).json({ message: 'El DNI ya está en uso por otro usuario' });
+        }
+
+        // Verificar si el teléfono tiene exactamente 9 dígitos
+        if (telefono.toString().length !== 9 || !(/^9\d{8}$/.test(telefono))) {
+            return res.status(400).json({ message: 'El teléfono debe tener exactamente 9 dígitos numéricos' });
+        }
+
+        // Verificar si el teléfono existe en la base de datos
+        const [existingPhone] = await pool.query(`
+            SELECT id FROM usuarios WHERE telefono = ?
+        `, [telefono]);
+
+        // Si el teléfono ya está en uso, devuelve un mensaje de error
+        if (existingPhone.length > 0) {
+            return res.status(400).json({ message: 'El teléfono ya está en uso por otro usuario' });
+        }
+
+        // Agregar el nuevo usuario a la base de datos
+        await pool.query(`
+            INSERT INTO usuarios (correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado]);
+
+        return res.status(201).json({ message: 'Usuario agregado correctamente' });
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+});
 
 export default router;
