@@ -9,6 +9,8 @@ import productsRoutes from './routes/products.routes.js'
 import categoriesRoutes from './routes/categories.routes.js'
 import products_categoriesRoutes from './routes/products_categories.routes.js'
 import cotizacionRoute from './routes/cotizacion.route.js'
+import users_managementRoutes  from './routes/users_management.routes.js'
+ 
 import cors from 'cors'
 
 //Initialization
@@ -47,6 +49,8 @@ app.use('/productos', productsRoutes);
 app.use('/cotizaciones', cotizacionRoute)
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
+app.use('/admin', users_managementRoutes);
+
 
 //Public files
 //app.use(express.static(join(__dirname, 'public')));

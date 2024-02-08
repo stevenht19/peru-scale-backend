@@ -5,8 +5,7 @@ const router = Router();
 
 // Ruta para agregar una nueva categoría
 router.post('/categorias/add', async (req, res) => {
-    console.log('Request received at POST /categorias/add');
-    
+
     try {
         const { nombrecategoria } = req.body;
 

@@ -1,5 +1,5 @@
 import pool from '../database.js'
-import { Router } from 'express'
+import { Router, query } from 'express'
 
 const router = Router()
 
@@ -16,6 +16,7 @@ router.get('/servicios', async (req, res) => {
 
 router.post('/servicios/agregar', async (req, res) => {
   try {
+    
     const { descripcion } = req.body;
 
     if (!descripcion) {
@@ -49,6 +50,46 @@ router.post('/solicitar', async (req, res) => {
     await Promise.all(products.map(async (product) => {
       await pool.query(insertProductQuery, [product.quantity, product.id, requestId]);
     }))
+
+    await pool.query('COMMIT');
+
+    res.json({ message: 'Solicitud de cotización y productos insertados con éxito.' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error(error);
+    res.status(500).json({ error: 'Error al procesar la solicitud.' });
+  }
+});
+
+router.post('/solicitar-servicio', async (req, res) => {
+  const {
+    empresa,
+    medioDePago,
+    cliente,
+    direccion,
+    telefono,
+    dni,
+    id_cliente,
+    balanzaDescripcion,
+    mensaje,
+    id_tipo_servicio
+  } = req.body;
+
+  try {
+
+    await pool.query('START TRANSACTION');
+    
+    const [request] = await pool.query(
+      'INSERT INTO solicitudes_cotizacion (empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente, id_asignado, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente ?? null, null, 'pendiente']
+    );
+
+    const requestId = request.insertId
+
+    await pool.query(
+      'INSERT INTO solicitud_servicio (balanzaDescripcion, mensaje, id_solicitud, id_tipo_servicio) VALUES (?, ?, ?, ?)',
+      [balanzaDescripcion, mensaje, requestId, id_tipo_servicio]
+    );
 
     await pool.query('COMMIT');
 

@@ -7,10 +7,28 @@ import { verifyRegister } from '../middlewares/verify-register.js';
 
 const router = Router();
 
-
 router.get('/usuarios', async (req, res) => {
   try {
-    const [usuarios] = await pool.query('SELECT id, correo, nombres, apellidos, direccion, telefono, dni FROM usuarios');
+
+    const query = `SELECT 
+    u.id, 
+    u.correo, 
+    u.password,
+    u.nombres, 
+    u.apellidos, 
+    u.direccion, 
+    u.telefono, 
+    u.dni, 
+    u.fecha_registro,
+    u.usuario_registro,
+    u.fecha_actualizacion,
+    u.usuario_actualizacion,
+    r.nombre as nombre_rol,
+    u.estado
+  FROM usuarios u
+  JOIN roles r ON u.id_rol = r.id_rol;`
+
+    const [usuarios] = await pool.query(query);
 
     return res.status(200).json({
       data: usuarios
@@ -25,8 +43,27 @@ router.get('/login', (req, res) => {
 });
 
 router.get('/account', verifyToken, async (req, res) => {
+  const query = `SELECT 
+    u.id, 
+    u.correo, 
+    u.password,
+    u.nombres, 
+    u.apellidos, 
+    u.direccion, 
+    u.telefono, 
+    u.dni, 
+    u.fecha_registro,
+    u.usuario_registro,
+    u.fecha_actualizacion,
+    u.usuario_actualizacion,
+    r.nombre as nombre_rol,
+    u.estado
+    FROM usuarios u
+    JOIN roles r ON u.id_rol = r.id_rol
+    WHERE u.id = ?;`
+
   try {
-    const [user] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [req.user_id]);
+    const [user] = await pool.query(query, [req.user_id]);
     return res.json({ user: user[0] })
   } catch (err) {
     return res.json({ message: err })
@@ -218,5 +255,6 @@ router.post('/recover-password', async (req, res) => {
     })
   }
 })
+
 
 export default router;
