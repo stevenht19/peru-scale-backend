@@ -8,6 +8,7 @@ import loginRoutes from './routes/login.routes.js'
 import productsRoutes from './routes/products.routes.js'
 import categoriesRoutes from './routes/categories.routes.js'
 import products_categoriesRoutes from './routes/products_categories.routes.js'
+import cotizacionRoute from './routes/cotizacion.route.js'
 import cors from 'cors'
 
 //Initialization
@@ -43,6 +44,7 @@ app.use(productosRoutes);
 
 app.use(loginRoutes);
 app.use('/productos', productsRoutes);
+app.use('/cotizaciones', cotizacionRoute)
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
 
