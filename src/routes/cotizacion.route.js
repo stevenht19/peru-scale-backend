@@ -14,6 +14,20 @@ router.get('/servicios', async (req, res) => {
   }
 })
 
+router.get('/solicitud_servicios', async (req, res) => {
+  try {
+    const [result] = await pool.query('SELECT * FROM solicitud_servicio');
+    return res.json(result)
+
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({ error: 'Error al agregar servicio' });
+  }
+})
+
+
+
+
 router.post('/servicios/agregar', async (req, res) => {
   try {
 
