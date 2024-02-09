@@ -1,4 +1,5 @@
 import j from 'jsonwebtoken'
+import pool from '../database.js'
 
 export async function verifyToken(req, res, next) {
   try {
@@ -13,7 +14,6 @@ export async function verifyToken(req, res, next) {
 
     const token = authorization
     const payload = j.verify(token, 'TOKEN_KEY')
-    console.log(payload)
     
     if (!payload) {
       res.status(200).json({
@@ -21,7 +21,8 @@ export async function verifyToken(req, res, next) {
       })
     }
 
-    req.user_id = payload.id
+    req.user = payload
+    req.user_id = payload?.id
 
     return next()
 
