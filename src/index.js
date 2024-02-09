@@ -12,6 +12,8 @@ import cotizacionRoute from './routes/cotizacion.route.js'
 import users_managementRoutes  from './routes/users_management.routes.js'
  
 import cors from 'cors'
+import { verifyRol } from './middlewares/verify-rol.js';
+import { verifyToken } from './utils/validateToken.js';
 
 //Initialization
 const app = express();
@@ -49,7 +51,7 @@ app.use('/productos', productsRoutes);
 app.use('/cotizaciones', cotizacionRoute)
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
-app.use('/admin', users_managementRoutes);
+app.use('/admin', verifyToken, verifyRol, users_managementRoutes);
 
 
 //Public files
