@@ -139,10 +139,15 @@ router.post('/login', async (req, res) => {
 
 
     if (user.length) {
-      // acceso exitoso
+      if (user[0]?.estado === 'inactivo') {
+        return res.status(403).json({ error: true, message: 'Unauthorized' });
+      }
+            // acceso exitoso
+
       const token = jwt.sign({ id: user[0].id }, 'TOKEN_KEY', {
         expiresIn: 2000
       })
+      
       return res.status(201).json({ user: user[0], token });
     } else {
       // Credenciales invalidas
