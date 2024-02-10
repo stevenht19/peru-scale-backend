@@ -25,6 +25,29 @@ router.get('/solicitud_servicios', async (req, res) => {
   }
 })
 
+router.get('/solicitud_productos', async (req, res) => {
+  try {
+    const [result] = await pool.query('SELECT * FROM solicitud_productos');
+    return res.json(result)
+
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({ error: 'Error al agregar servicio' });
+  }
+})
+
+router.get('/solicitudes_cotizacion', async (req, res) => {
+  try {
+    const [result] = await pool.query('SELECT * FROM solicitudes_cotizacion');
+    return res.json(result)
+
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({ error: 'Error al agregar servicio' });
+  }
+})
+
+
 
 
 
