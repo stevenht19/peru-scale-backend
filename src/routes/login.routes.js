@@ -64,7 +64,11 @@ router.get('/account', verifyToken, async (req, res) => {
 
   try {
     const [user] = await pool.query(query, [req.user_id]);
-    return res.json({ user: user[0] })
+    if (user[0].estado === 'activo') {
+      return res.json({ user: user[0] })
+    } else {
+      return res.status(403).json({ err: 'Unauthorized' })
+    }
   } catch (err) {
     return res.json({ message: err })
   }
