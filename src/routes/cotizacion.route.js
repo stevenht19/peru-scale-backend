@@ -14,6 +14,56 @@ router.get('/servicios', async (req, res) => {
   }
 })
 
+router.get('/solicitudes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    if (isNaN(id)) {
+      return res.status(400).json({
+        error: true,
+        message: 'Error obteniendo el detalle de la solicitud'
+      })
+    }
+
+    const query = `SELECT
+      sc.*,
+      u_asignado.nombres AS nombre_asignado,
+      ss.balanzaDescripcion,
+      ss.mensaje,
+      ss.id_tipo_servicio,
+      ts.descripcion as descripcion_servicio
+    FROM
+      solicitudes_cotizacion sc
+    LEFT JOIN
+      usuarios u_asignado ON sc.id_asignado = u_asignado.id
+    LEFT JOIN
+      solicitud_servicio ss ON sc.id_servicio = ss.id
+    LEFT JOIN
+    tipo_servicios ts ON ss.id_tipo_servicio = ts.id
+    WHERE sc.id = ?`
+
+    const [requests] = await pool.query(query, [Number(id)])
+    const request = requests[0] 
+
+    if (!request.id_servicio) {
+      const productsQuery = `
+      select p.imagen, p.nombre, sp.cantidad from solicitud_productos sp
+      INNER JOIN productos as p ON sp.id_producto = p.id
+      where id_solicitud = ?`
+
+        const [products] = await pool.query(productsQuery, [Number(id)])
+
+      return res.json({ data: request, products })
+    }
+
+    return res.json({ data: request })
+  } catch (error) {
+    return res.status(500).json(error)
+  }
+
+
+})
+
 router.get('/solicitud_servicios', async (req, res) => {
   try {
     const [result] = await pool.query('SELECT * FROM solicitud_servicio');
@@ -38,18 +88,14 @@ router.get('/solicitud_productos', async (req, res) => {
 
 router.get('/solicitudes_cotizacion', async (req, res) => {
   try {
-    const [result] = await pool.query('SELECT * FROM solicitudes_cotizacion');
-    return res.json(result)
+    const result = await pool.query('SELECT solicitudes_cotizacion.*, usuarios.nombres AS nombre_asignado FROM solicitudes_cotizacion LEFT JOIN usuarios ON solicitudes_cotizacion.id_asignado = usuarios.id');
+    return res.json(result[0])
 
   } catch (e) {
     console.log(e)
     res.status(500).json({ error: 'Error al agregar servicio' });
   }
 })
-
-
-
-
 
 router.post('/servicios/agregar', async (req, res) => {
   try {
@@ -107,23 +153,24 @@ router.post('/solicitar-servicio', async (req, res) => {
     id_cliente,
     balanzaDescripcion,
     mensaje,
-    id_tipo_servicio
+    id_tipo_servicio,
+    capacidadBalanza
   } = req.body;
 
   try {
 
     await pool.query('START TRANSACTION');
 
-    const [request] = await pool.query(
-      'INSERT INTO solicitudes_cotizacion (empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente, id_asignado, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente ?? null, null, 'pendiente']
+    const [reqService] = await pool.query(
+      'INSERT INTO solicitud_servicio (balanzaDescripcion, mensaje, id_tipo_servicio, capacidadBalanza) VALUES (?, ?, ?, ?)',
+      [balanzaDescripcion, mensaje, id_tipo_servicio, capacidadBalanza]
     );
 
-    const requestId = request.insertId
+    const requestServiceId = reqService.insertId
 
     await pool.query(
-      'INSERT INTO solicitud_servicio (balanzaDescripcion, mensaje, id_solicitud, id_tipo_servicio) VALUES (?, ?, ?, ?)',
-      [balanzaDescripcion, mensaje, requestId, id_tipo_servicio]
+      'INSERT INTO solicitudes_cotizacion (empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente, id_asignado, estado, id_servicio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente ?? null, null, 'pendiente', requestServiceId]
     );
 
     await pool.query('COMMIT');
