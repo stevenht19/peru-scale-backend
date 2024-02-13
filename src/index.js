@@ -51,7 +51,9 @@ app.use('/productos', productsRoutes);
 app.use('/cotizaciones', cotizacionRoute)
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
-app.use('/admin', verifyToken, verifyRol, users_managementRoutes);
+app.use('/admin', users_managementRoutes);
+//app.use('/admin', verifyToken, verifyRol, users_managementRoutes);
+
 
 
 //Public files
