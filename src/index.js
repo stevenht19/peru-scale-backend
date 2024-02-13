@@ -10,6 +10,7 @@ import categoriesRoutes from './routes/categories.routes.js'
 import products_categoriesRoutes from './routes/products_categories.routes.js'
 import cotizacionRoute from './routes/cotizacion.route.js'
 import users_managementRoutes  from './routes/users_management.routes.js'
+import my_accountRoutes  from './routes/my_account.routes.js'
  
 import cors from 'cors'
 import { verifyRol } from './middlewares/verify-rol.js';
@@ -52,8 +53,7 @@ app.use('/cotizaciones', cotizacionRoute)
 app.use(categoriesRoutes);
 app.use(products_categoriesRoutes);
 app.use('/admin', users_managementRoutes);
-//app.use('/admin', verifyToken, verifyRol, users_managementRoutes);
-
+app.use('/client_register',my_accountRoutes);
 
 
 //Public files

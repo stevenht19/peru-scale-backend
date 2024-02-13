@@ -64,7 +64,11 @@ router.get('/account', verifyToken, async (req, res) => {
 
   try {
     const [user] = await pool.query(query, [req.user_id]);
-    return res.json({ user: user[0] })
+    if (user[0].estado === 'activo') {
+      return res.json({ user: user[0] })
+    } else {
+      return res.status(403).json({ err: 'Unauthorized' })
+    }
   } catch (err) {
     return res.json({ message: err })
   }
@@ -135,10 +139,15 @@ router.post('/login', async (req, res) => {
 
 
     if (user.length) {
-      // acceso exitoso
+      if (user[0]?.estado === 'inactivo') {
+        return res.status(403).json({ error: true, message: 'Unauthorized' });
+      }
+            // acceso exitoso
+
       const token = jwt.sign({ id: user[0].id }, 'TOKEN_KEY', {
         expiresIn: 2000
       })
+      
       return res.status(201).json({ user: user[0], token });
     } else {
       // Credenciales invalidas
