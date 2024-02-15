@@ -222,5 +222,19 @@ router.post('/solicitar-servicio', async (req, res) => {
   }
 });
 
+router.get('/pendientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const [tasks] = await pool.query('SELECT * FROM solicitudes_cotizacion WHERE id_asignado = ?', [Number(id)])
+    return res.json(tasks)
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: error.message
+    })
+  }
+})
+
 
 export default router
