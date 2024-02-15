@@ -15,6 +15,9 @@ import my_accountRoutes  from './routes/my_account.routes.js'
 import cors from 'cors'
 import { verifyRol } from './middlewares/verify-rol.js';
 import { verifyToken } from './utils/validateToken.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 //Initialization
 const app = express();

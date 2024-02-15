@@ -1,81 +1,31 @@
-// import pool from '../database.js'; 
-// // import {Roles} from '../utils/roles.js'
-// // verify-rol.js
+// Al principio de tu archivo verify-rol.js
+import jwt from 'jsonwebtoken';
+import pool from '../database.js'; 
+import { Roles } from '../utils/roles.js';
 
-// import jwt from 'jsonwebtoken';
+// Asegúrate de tener esto en la parte superior del archivo donde cargas todas tus dependencias.
+import dotenv from 'dotenv';
+dotenv.config();
 
-// export const verifyRol = (req, res, next) => {
-//     const token = req.header('Authorization');
+const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
-//     if (!token) {
-//         return res.status(401).json({ message: 'Acceso no autorizado. Token no proporcionado.' });
-//     }
+export const verifyRol = (req, res, next) => {
+    const token = req.header('Authorization');
 
-//     try {
-//         const decoded = jwt.verify(token, 'your_secret_key'); // Reemplaza 'your_secret_key' con tu clave secreta para firmar el token
-//         req.user = decoded.user; // Guarda la información del usuario en el objeto de solicitud
-//         if (req.user.id_rol === 1) {
-//             next();
-//         } else {
-//             return res.status(403).json({ message: 'Acceso denegado. Permiso insuficiente.' });
-//         }
-//     } catch (error) {
-//         return res.status(401).json({ message: 'Token inválido.' });
-//     }
-// };
+    if (!token) {
+        return res.status(401).json({ message: 'Acceso no autorizado. Token no proporcionado.' });
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // export function authorizeAdmin(req, res, next) {
-// //     const { usuario } = req; // Asumiendo que ya has implementado la autenticación y almacenado la información del usuario en req.usuario
-    
-// //     if (!usuario || usuario.id_rol !== 1) {
-// //         if (res && res.status) {
-// //             return res.status(403).json({
-// //                 error: true,
-// //                 message: 'No tiene permisos suficientes para acceder a esta ruta'
-// //             });
-// //         } else if (next && typeof next === 'function') {
-// //             return next();
-// //         } else {
-// //             // Si ni res ni next están disponibles, simplemente no hagas nada
-// //             return;
-// //         }
-// //     }
-
-// //     return next();
-// // }
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded.user;
+        
+        if (req.user.id_rol === Roles.Admin) {
+            next();
+        } else {
+            return res.status(403).json({ message: 'Acceso denegado. Permiso insuficiente.' });
+        }
+    } catch (error) {
+        return res.status(401).json({ message: 'Token inválido.' });
+    }
+};
