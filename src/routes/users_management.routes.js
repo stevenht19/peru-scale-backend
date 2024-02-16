@@ -38,7 +38,7 @@ router.get('/admin_usuarios', async (req, res) => {
 // Ruta para actualizar un usuario------------------------
 router.put('/admin_usuarios/:id', async (req, res) => {
   const { id } = req.params;
-  const { correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado } = req.body;
+  const { correo, nombres, apellidos, password, direccion, telefono, dni, id_rol, estado, usuario_actualizacion } = req.body;
 
   try {
     // Verificar si el correo electrónico existe en la base de datos
@@ -84,9 +84,9 @@ router.put('/admin_usuarios/:id', async (req, res) => {
     // Actualizar el usuario 
     await pool.query(`
             UPDATE usuarios
-            SET correo = ?, nombres = ?, apellidos = ?, direccion = ?, telefono = ?, dni = ?, id_rol = ?, estado = ?
+            SET correo = ?, nombres = ?, apellidos = ?, direccion = ?, telefono = ?, dni = ?, id_rol = ?, estado = ?, usuario_actualizacion = ?
             WHERE id = ?
-        `, [correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado, id]);
+        `, [correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado, usuario_actualizacion, id]);
 
     return res.status(200).json({ message: 'Usuario actualizado correctamente' });
   } catch (err) {
@@ -99,7 +99,7 @@ router.put('/admin_usuarios/:id', async (req, res) => {
 
 // Ruta para agregar un nuevo usuario-------------------------
 router.post('/admin_usuarios', async (req, res) => {
-  const { correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado } = req.body;
+  const { correo, nombres, apellidos, direccion, password, telefono, dni, id_rol, usuario_registro } = req.body;
 
   try {
     // Verificar si el correo electrónico existe en la base de datos
@@ -144,9 +144,9 @@ router.post('/admin_usuarios', async (req, res) => {
 
     // Agregar el nuevo usuario a la base de datos
     const [createdUser] = await pool.query(`
-            INSERT INTO usuarios (correo, nombres, apellidos, direccion, telefono, dni, id_rol, estado)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [correo, nombres, apellidos, direccion, telefono, dni, id_rol, 'activo']);
+            INSERT INTO usuarios (correo, nombres, apellidos, password, direccion, telefono, dni, id_rol, estado, usuario_registro)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [correo, nombres, apellidos, password, direccion, telefono, dni, id_rol, 'activo', usuario_registro]);
 
     const query = `SELECT 
         u.id, 
@@ -161,6 +161,7 @@ router.post('/admin_usuarios', async (req, res) => {
         u.usuario_registro,
         u.fecha_actualizacion,
         u.usuario_actualizacion,
+        u.id_rol as id_rol,
         r.nombre as nombre_rol,
         u.estado
         FROM usuarios u
@@ -169,7 +170,7 @@ router.post('/admin_usuarios', async (req, res) => {
 
     const [user] = await pool.query(query, [createdUser.insertId]);
 
-    return res.status(201).json({ message: 'Usuario agregado correctamente', user: user });
+    return res.status(201).json({ message: 'Usuario agregado correctamente', user: user[0] });
   } catch (err) {
     return res.status(500).json({  error: true, message: err });
   }

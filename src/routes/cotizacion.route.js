@@ -205,11 +205,13 @@ router.post('/solicitar-servicio', async (req, res) => {
       [balanzaDescripcion, mensaje, id_tipo_servicio, capacidadBalanza]
     );
 
+    const clientId = Number(id_cliente)
+
     const requestServiceId = reqService.insertId
 
     await pool.query(
       'INSERT INTO solicitudes_cotizacion (empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente, id_asignado, estado, id_servicio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente ?? null, null, 'pendiente', requestServiceId]
+      [empresa, medioDePago, cliente, direccion, telefono, dni, isNaN(clientId) ? null : clientId, null, 'pendiente', requestServiceId]
     );
 
     await pool.query('COMMIT');
@@ -221,6 +223,20 @@ router.post('/solicitar-servicio', async (req, res) => {
     res.status(500).json({ error: 'Error al procesar la solicitud.' });
   }
 });
+
+router.get('/pendientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const [tasks] = await pool.query('SELECT * FROM solicitudes_cotizacion WHERE id_asignado = ?', [Number(id)])
+    return res.json(tasks)
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: error.message
+    })
+  }
+})
 
 
 export default router
