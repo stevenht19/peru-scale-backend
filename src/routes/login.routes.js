@@ -142,6 +142,14 @@ router.post('/login', async (req, res) => {
       if (user[0]?.estado === 'inactivo') {
         return res.status(403).json({ error: true, message: 'Unauthorized' });
       }
+
+       // Obtener el nombre del rol asociado con el ID del rol del usuario
+       const [role] = await pool.query('SELECT nombre FROM roles WHERE id_rol = ?', [user[0].id_rol]);
+
+
+   // Actualizar usuario_registro con el nombre del rol
+   await pool.query('UPDATE usuarios SET usuario_registro = ? WHERE id = ?', [role[0].nombre, user[0].id]);
+
             // acceso exitoso
 
       const token = jwt.sign({ id: user[0].id }, 'TOKEN_KEY', {
@@ -158,6 +166,8 @@ router.post('/login', async (req, res) => {
     console.log(err)
   }
 });
+
+
 
 router.post('/recover', verifyToken, async (req, res) => {
   try {
