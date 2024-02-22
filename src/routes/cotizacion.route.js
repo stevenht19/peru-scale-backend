@@ -3,44 +3,6 @@ import { Router } from 'express'
 
 const router = Router()
 
-router.patch('/asignar/:id', async (req, res) => {
-  try {
-    const { id } = req.params
-    const { user_id } = req.body
-  
-    if (!id || !user_id) return res.json({
-      error: true,
-      message: 'Bad Request'
-    })
-
-    const [quotationReq] = await pool.query(`SELECT id_asignado FROM solicitudes_cotizacion WHERE id = ?`, [id])
-
-    if (quotationReq[0].id_asignado) {
-      res.json({
-        error: true,
-        message: 'La solicitud ya está siendo atendida por otro asesor'
-      })
-    }
-    const query = 
-    `UPDATE solicitudes_cotizacion
-    SET id_asignado = ?
-    WHERE id = ?`
-
-    await pool.query(query, [Number(user_id), Number(id)])
-
-    res.json({
-      message: 'Asignado correctamente'
-    })
-
-  } catch(e) {
-    return res.json({
-      error: true,
-      message: e.message
-    })
-  }
-
-})
-
 router.get('/servicios', async (req, res) => {
   try {
     const [result] = await pool.query('SELECT * FROM tipo_servicios');
@@ -66,7 +28,6 @@ router.get('/solicitudes/:id', async (req, res) => {
     const query = `SELECT
       sc.*,
       u_asignado.nombres AS nombre_asignado,
-      u_asignado.apellidos AS apellidos_asignado,
       ss.balanzaDescripcion,
       ss.mensaje,
       ss.id_tipo_servicio,
@@ -127,7 +88,7 @@ router.get('/solicitud_productos', async (req, res) => {
 
 router.get('/solicitudes_cotizacion', async (req, res) => {
   try {
-    const result = await pool.query('SELECT solicitudes_cotizacion.*, usuarios.nombres AS nombre_asignado, usuarios.apellidos AS apellidos_asignado FROM solicitudes_cotizacion LEFT JOIN usuarios ON solicitudes_cotizacion.id_asignado = usuarios.id');
+    const result = await pool.query('SELECT solicitudes_cotizacion.*, usuarios.nombres AS nombre_asignado FROM solicitudes_cotizacion LEFT JOIN usuarios ON solicitudes_cotizacion.id_asignado = usuarios.id');
     return res.json(result[0])
 
   } catch (e) {
@@ -222,5 +183,5 @@ router.post('/solicitar-servicio', async (req, res) => {
   }
 });
 
-
+    
 export default router
