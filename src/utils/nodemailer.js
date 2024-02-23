@@ -1,14 +1,14 @@
 import nodemailer from 'nodemailer'
 
 
-export const sendEmail = async (to, html, subject) => {
-
+export const sendEmail = async (to, html, subject, attachments) => {
   const mailOptions = (to, html, subject) => {
     return {
       from: 'PeruScale no reply<peruscale85@gmail.com>',
       subject: subject ?? 'Recupera tu cuenta',
       html, 
       to : to,
+      ...(attachments ? { attachments } : {})
     }
   }
 
@@ -22,5 +22,5 @@ export const sendEmail = async (to, html, subject) => {
     },
   });
 
-  return await transporter.sendMail(mailOptions(to, html, subject))
+  return await transporter.sendMail(mailOptions(to, html, subject, attachments))
 }
