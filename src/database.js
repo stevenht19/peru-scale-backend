@@ -5,7 +5,7 @@ const pool = createPool({
     multipleStatements: true,
     port: '3306',
     user: 'root',
-    password: 'admin',
+    password: 'root',
     database: 'peruscale'
 });
 
