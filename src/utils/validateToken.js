@@ -13,7 +13,7 @@ export function verifyToken(req, res, next) {
 
     // Suponiendo que estás enviando el token en el formato 'Bearer <token>'
     const token = authorization.split(' ')[1];
-    const payload = jwt.verify(token, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJjYW1hbGVvbnhAZ21haWwuY29tIiwicGFzc3dvcmQiOiJOZXVyb25hMCoiLCJpYXQiOjE3MDc4MDU5MTQsImV4cCI6MTcwNzgwOTUxNH0.ipHLmPOPX2AT5vMy2h6GtskBlkaUJgUlctilY3P7-M0); // Asegúrate de reemplazar 'tu_clave_secreta_aqui' con tu clave secreta real
+    //const payload = jwt.verify(token, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJjYW1hbGVvbnhAZ21haWwuY29tIiwicGFzc3dvcmQiOiJOZXVyb25hMCoiLCJpYXQiOjE3MDc4MDU5MTQsImV4cCI6MTcwNzgwOTUxNH0.ipHLmPOPX2AT5vMy2h6GtskBlkaUJgUlctilY3P7-M0); // Asegúrate de reemplazar 'tu_clave_secreta_aqui' con tu clave secreta real
     
     if (!payload) {
       return res.status(401).json({
