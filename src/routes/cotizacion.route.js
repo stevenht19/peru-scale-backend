@@ -9,24 +9,26 @@ router.post('/emitir/:id', async (req, res) => {
   try {
     const { id } = req.params
 
-    const query =
-      `UPDATE solicitudes_cotizacion
-      SET estado = ?
-      WHERE id = ?`
-
-    await pool.query(query, ['atendido', Number(id)])
-
     const select = `SELECT solicitante_correo FROM solicitudes_cotizacion where id = ? `
 
     const [quotationReq] = await pool.query(select, Number(id))
 
     if (quotationReq[0]) {
+
       if (!quotationReq[0]?.solicitante_correo) {
         return res.status(403).json({
           error: true,
           message: 'Correo not found'
         })
       }
+
+      const query =
+        `UPDATE solicitudes_cotizacion
+      SET estado = ?
+      WHERE id = ?`
+
+      await pool.query(query, ['atendido', Number(id)])
+
       const f = req.files.archivo
 
       const fileStream = {
@@ -35,21 +37,21 @@ router.post('/emitir/:id', async (req, res) => {
         extension: f?.mimetype,
         name: f?.name,
       }
-  
+
       let fileToSave = []
-  
+
       if (fileStream) {
         fileToSave.push({
           filename: f.name,
           content: fs.readFileSync(fileStream.stream.path)
         })
       }
-  
+
       await sendEmail(quotationReq[0].solicitante_correo, `Hemos atendido su solicitud de cotización`, 'Cotizacion de Productos PeruScale', fileToSave)
-  
-      return res.json({ message: 'Cotización emitida correctamente' })  
+
+      return res.json({ message: 'Cotización emitida correctamente' })
     }
-    
+
   } catch (e) {
     return res.status(500).json({ message: e.message })
   }
@@ -178,7 +180,7 @@ router.patch('/servicio/:id/precio', async (req, res) => {
 
     await pool.query(query, [+price, +id])
 
-  
+
     return res.status(200).json({ message: 'Precio al servicio asignado' })
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message })
@@ -297,7 +299,8 @@ router.post('/solicitar-servicio', async (req, res) => {
     balanzaDescripcion,
     mensaje,
     id_tipo_servicio,
-    capacidadBalanza
+    capacidadBalanza,
+    solicitante_correo
   } = req.body;
 
   try {
@@ -312,8 +315,8 @@ router.post('/solicitar-servicio', async (req, res) => {
     const requestServiceId = reqService.insertId
 
     await pool.query(
-      'INSERT INTO solicitudes_cotizacion (empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente, id_asignado, estado, id_servicio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente ?? null, null, 'pendiente', requestServiceId]
+      'INSERT INTO solicitudes_cotizacion (empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente, id_asignado, estado, id_servicio, solicitante_correo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [empresa, medioDePago, cliente, direccion, telefono, dni, id_cliente ?? null, null, 'pendiente', requestServiceId, solicitante_correo]
     );
 
     await pool.query('COMMIT');
