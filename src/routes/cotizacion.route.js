@@ -191,12 +191,10 @@ router.patch('/productos/precio-unitario', async (req, res) => {
   try {
     const { products } = req.body
 
-    console.log(products)
-
     for (let product of products) {
       const editProductQuery = `
           UPDATE solicitud_productos
-          SET precio_unitario = ?
+          SET precio_unitario = ? and descuentos = 1
           WHERE id_producto = ?`;
 
       await pool.query(editProductQuery, [product.precio_unitario, product.id]);
