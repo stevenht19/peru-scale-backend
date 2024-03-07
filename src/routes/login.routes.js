@@ -143,19 +143,19 @@ router.post('/login', async (req, res) => {
         return res.status(403).json({ error: true, message: 'Unauthorized' });
       }
 
-       // Obtener el nombre del rol asociado con el ID del rol del usuario
-       const [role] = await pool.query('SELECT nombre FROM roles WHERE id_rol = ?', [user[0].id_rol]);
+      // Obtener el nombre del rol asociado con el ID del rol del usuario
+      const [role] = await pool.query('SELECT nombre FROM roles WHERE id_rol = ?', [user[0].id_rol]);
 
+    
+      // Actualizar usuario_registro con el nombre del rol
+      await pool.query('UPDATE usuarios SET usuario_registro = ? WHERE id = ?', [role[0].nombre, user[0].id]);
 
-   // Actualizar usuario_registro con el nombre del rol
-   await pool.query('UPDATE usuarios SET usuario_registro = ? WHERE id = ?', [role[0].nombre, user[0].id]);
-
-            // acceso exitoso
+      // acceso exitoso
 
       const token = jwt.sign({ id: user[0].id }, 'TOKEN_KEY', {
         expiresIn: 2000
       })
-      
+
       return res.status(201).json({ user: user[0], token });
     } else {
       // Credenciales invalidas
@@ -163,7 +163,6 @@ router.post('/login', async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({ error: true, message: err.message });
-    console.log(err)
   }
 });
 
