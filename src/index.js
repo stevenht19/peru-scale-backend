@@ -9,8 +9,10 @@ import products_categoriesRoutes from './routes/products_categories.routes.js'
 import cotizacionRoute from './routes/cotizacion.route.js'
 import users_managementRoutes from './routes/users_management.routes.js'
 import my_accountRoutes from './routes/my_account.routes.js'
-
 import cors from 'cors'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 //Initialization
 const app = express();
