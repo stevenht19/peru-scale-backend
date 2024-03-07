@@ -3,6 +3,12 @@ import pool from '../database.js'
 
 const router = Router();
 
+
+
+
+
+
+
 router.get('/add', (req,res)=>{
     res.render('productos/add');
 });

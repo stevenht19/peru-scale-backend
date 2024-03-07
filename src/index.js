@@ -47,6 +47,7 @@ app.get('/', (req, res)=>{
 })*/
 
 app.use(productosRoutes);
+app.use(loginRoutes);
 
 app.use(loginRoutes);
 app.use('/productos', productsRoutes);
