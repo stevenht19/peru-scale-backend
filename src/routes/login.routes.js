@@ -101,10 +101,10 @@ router.post('/register', verifyRegister, async (req, res) => {
       expiresIn: 3600
     })
 
-    sendEmail(correo, `
+    await sendEmail(correo, `
       <h2>Verifica tu cuenta de PeruScale</h2>
       Gracias por registrarte! Solo cuentas con una hora para verificar tu cuenta  <br /> Para verificar tu cuenta haz click en este link: <br />
-      <a href=http://localhost:5173/verify?token=${token}>
+      <a href=https://peru-scale.vercel.app/verify?token=${token}>
         Verificar Cuenta
       </a>
     `, 'Confirmación de Cuenta')
@@ -261,9 +261,9 @@ router.post('/recover-password', async (req, res) => {
       expiresIn: 2000
     })
 
-    sendEmail(email, `
+    await sendEmail(email, `
       Para modificar tu contraseña haz click en este link: <br />
-      <a href=http://localhost:5173/recover?token=${token}>
+      <a href=https://peru-scale.vercel.app/recover?token=${token}>
         Recupera aquí
       </a>
     `)
